@@ -23,7 +23,8 @@
           imagemagick_light
         ];
       in rec {
-        packages = {
+        packages = rec {
+          default = reSnap;
           reSnap = import ./resnap.nix {inherit pkgs requirements;};
         };
         apps = rec {
