@@ -21,6 +21,7 @@
           ffmpeg
           feh
           imagemagick_light
+          lz4
         ];
       in rec {
         packages = rec {
@@ -52,11 +53,7 @@
           };
         };
         devShells.default = pkgs.mkShell {
-          packages =
-            requirements
-            ++ (with pkgs; [
-              lz4
-            ]);
+          packages = requirements;
         };
       }
     );
