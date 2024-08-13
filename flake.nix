@@ -4,14 +4,12 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nix-remarkable.url = "github:404wolf/nix-remarkable";
   };
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
-    nix-remarkable,
   }:
     flake-utils.lib.eachDefaultSystem
     (
@@ -28,7 +26,8 @@
         packages = {
           reSnap = import ./resnap.nix {inherit pkgs requirements;};
         };
-        apps = {
+        apps = rec {
+          default = reSnap;
           reSnap = flake-utils.lib.mkApp {
             name = "reSnap";
             drv = packages.reSnap;

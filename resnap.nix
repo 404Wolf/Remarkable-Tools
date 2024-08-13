@@ -5,5 +5,5 @@
 pkgs.writeShellApplication {
   name = "reSnap";
   runtimeInputs = requirements;
-  text = builtins.readFile "${./reSnap.sh}/reSnap.sh";
+  text = builtins.readFile ./reSnap.sh;
 }
