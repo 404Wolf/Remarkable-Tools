@@ -131,7 +131,8 @@ def cleanup_image(path):
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 2, "Image path must be passed!"
+    if not len(sys.argv) == 2:
+        raise Exception("Image path must be passed!")
     path = sys.argv[1]
     img = cleanup_image(path)
     img.save(path)

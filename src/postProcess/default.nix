@@ -1,10 +1,13 @@
-{python3Packages, ...}:
-python3Packages.buildPythonApplication {
-  pname = "postProcess";
-  src = ./postProcess.py;
-  version = "1.0";
-  buildInputs = with python3Packages; [
-    numpy
-    pillow
-  ];
-}
+{pkgs, ...}: let
+  python = pkgs.python3.withPackages (ps:
+    with ps; [
+      numpy
+      pillow
+      scikit-image
+      scipy
+      opencv4
+    ]);
+in
+  pkgs.writeShellScriptBin "postProcess" ''
+    ${python}/bin/python3 -O ${./postProcess.py} $@
+  ''
