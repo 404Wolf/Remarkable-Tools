@@ -144,8 +144,9 @@ elif [ "$rm_version" = "reMarkable 2.0" ]; then
     height=1404
     # pixel format
     if [ "$byte_correction" = "true" ]; then
+        echo "Byte correction enabled"
         bytes_per_pixel=2
-        pixel_format="gray16"
+        pixel_format="gray16le"
         filters="$filters,transpose=3" # 90° clockwise and vertical flip
     else
         bytes_per_pixel=1
@@ -222,7 +223,9 @@ $decompress |
     -video_size "$width,$height" \
     -i - \
     -vf "$filters" \
-    -frames:v 1 "$output_file"
+    -frames:v 1 \
+    -f image2 \
+    "$output_file"
 
 if [ "$construct_sketch" = "true" ]; then
     echo "Constructing sketch"

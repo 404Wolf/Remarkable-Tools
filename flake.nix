@@ -11,50 +11,42 @@
     nixpkgs,
     flake-utils,
   }:
-    flake-utils.lib.eachDefaultSystem
-    (
-      system: let
-        pkgs = import nixpkgs {
-          inherit system;
-        };
-        requirements = with pkgs; [
-          ffmpeg
-          feh
-          imagemagick_light
-          lz4
-        ];
-      in rec {
-        packages = rec {
-          default = reSnap;
-          reSnap = import ./resnap.nix {inherit pkgs requirements;};
-        };
-        apps = rec {
-          default = reSnap;
-          reSnap = flake-utils.lib.mkApp {
-            name = "reSnap";
-            drv = packages.reSnap;
+    flake-utils.lib.eachDefaultSystem (
+      system: (
+        let
+          pkgs = import nixpkgs {inherit system;};
+          packages = pkgs.callPackage ./src {};
+        in {
+          packages = {
+            default = packages.reSnap;
+            reSnap = packages.reSnap;
+            postProcess = packages.postProcess;
+            setupRemarkable = packages.setupRemarkable;
           };
-          setup-remarkable = flake-utils.lib.mkApp {
-            name = "setup-remarkable";
-            drv = pkgs.writeShellApplication {
-              name = "setup-remarkable";
-              runtimeInputs = [pkgs.sshpass];
-              checkPhase = "";
-              text = ''
-                lz4=${./lz4.arm.static}
-                echo lz4 path: $lz4
-                REMARKABLE_PASSWORD=$1
-                KEY_TYPE="ed25519"
-                KEY_PATH="$HOME/.ssh/remarkable"
-                KEY_COMMENT="remarkable_auto_generated_key"
-                ${builtins.readFile ./setup-remarkable.sh}
-              '';
+          apps = rec {
+            default = reSnap;
+            reSnap = flake-utils.lib.mkApp {
+              name = "reSnap";
+              drv = packages.reSnap;
+            };
+            postProcess = flake-utils.lib.mkApp {
+              name = "postProcess";
+              drv = packages.postProcess;
+            };
+            setupRemarkable = flake-utils.lib.mkApp {
+              name = "setupRemarkable";
+              drv = packages.setupRemarkable;
             };
           };
-        };
-        devShells.default = pkgs.mkShell {
-          packages = requirements;
-        };
-      }
+          devShells.default = pkgs.mkShell {
+            packages = with pkgs; [feh];
+            inputsFrom = with packages; [
+              reSnap
+              postProcess
+              setupRemarkable
+            ];
+          };
+        }
+      )
     );
 }
