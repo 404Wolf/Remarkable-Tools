@@ -3,9 +3,6 @@
     with ps; [
       numpy
       pillow
-      scikit-image
-      scipy
-      opencv4
     ]);
 in
   pkgs.writeShellScriptBin "postProcess" ''

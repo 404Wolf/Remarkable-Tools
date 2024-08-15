@@ -14,7 +14,10 @@
     flake-utils.lib.eachDefaultSystem (
       system: (
         let
-          pkgs = import nixpkgs {inherit system;};
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
           packages = pkgs.callPackage ./src {};
         in {
           packages = {
@@ -39,7 +42,27 @@
             };
           };
           devShells.default = pkgs.mkShell {
-            packages = with pkgs; [feh];
+            packages = with packages; (with pkgs; [
+              feh
+              (pkgs.symlinkJoin {
+                name = "obsidian";
+                paths = [pkgs.obsidian reSnap postProcess];
+                buildInputs = [pkgs.makeWrapper];
+                postBuild = ''
+                  wrapProgram $out/bin/obsidian \
+                    --set PATH $PATH:${pkgs.lib.makeBinPath [
+                    reSnap
+                    postProcess
+                    pkgs.openssh
+                  ]}
+                '';
+              })
+              (pkgs.python3.withPackages (ps:
+                with ps; [
+                  numpy
+                  pillow
+                ]))
+            ]);
             inputsFrom = with packages; [
               reSnap
               postProcess

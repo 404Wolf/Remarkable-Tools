@@ -1,4 +1,4 @@
-import sys
+import argparse
 
 import numpy as np
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
@@ -8,20 +8,8 @@ def apply_curve(img):
     # Convert image to numpy array
     img_array = np.array(img)
 
-    # Create lookup table
-    #
-    # x-axis:
-    #  - The x-axis represents the input pixel values of the image.
-    #  - In the code, x is defined as an array of evenly spaced values from 0 to 65535 (inclusive) with a total of 65536 elements.
-    #  - Each value in x corresponds to a possible pixel value in a 16-bit grayscale image.
-    #
-    # y-axis:
-    #  - The y-axis represents the output pixel values after applying the curve adjustment.
-    #  - In the code, y is calculated using np.interp() based on the control points provided.
-    #  - The control points define the mapping between the input pixel values (x-axis) and the output pixel values (y-axis).
-    #  - The control points are specified as two arrays: [0, 2949, 3932, 65535] for the x-axis and [0, 0, 65535, 65535] for the y-axis.
-    #  - These control points define the shape of the curve and how the pixel values are mapped from the input to the output.
-
+    # Create lookup table. The x axis is all possible 16 bit gray colors, and the
+    # y axis is what they map to.
     x = np.linspace(0, 65535, 65536)
     # for example, 2949 -> 0
     y = np.interp(x, [0, 5700, 7680, 65535], [0, 59000, 65535, 65535])
@@ -82,7 +70,12 @@ def remove_dotted_background(img, blur_radius=10, block_size=20, padding=100):
     return img.crop(bbox)
 
 
-def cleanup_image(path):
+def is_landscape(data):
+    print(data.shape)
+    return np.all(data[1824, 45] == [0, 0, 0])
+
+
+def cleanup_image(path, crop):
     """Clean up a remarkable screenshot. Remove artifacts like menu and compass"""
     # Load image, discard alpha (if present)
     img = Image.open(path)
@@ -96,43 +89,59 @@ def cleanup_image(path):
 
     # Remove menu and indicators
     data = np.array(img)
-    print(data.shape)
-    if np.all(data[1840, 37] == [0, 0, 0]):
-        print(f"The menu is open")
-        # Remove the entire menu, and the x in the top right corner
-        data[:, :120, :] = 255
-        data[40:81, 1324:1364, :] = 255
+
+    if is_landscape(data):
+        # Remove the menu and x
+        if np.all(data[1829, 1324]):
+            data[1782 : img.height, 0 : img.width] = [255, 255, 255]
+            data[20:80, 20:80] = [255, 255, 255]
+
+        # Rotate the image
+        data = np.rot90(data, 3)
+        img = Image.fromarray(data).convert("RGB")
+        img.save("transient.png")
     else:
-        print("The menu is closed")
-        # Remove only the menu indicator circle
-        data[40:81, 40:81, :] = 255
+        print(data.shape)
+        if np.all(data[1840, 37] == [0, 0, 0]):
+            print(f"The menu is open")
+            # Remove the menu and x
+            data[:, :120, :] = 255
+            data[40:81, 1324:1364, :] = 255
+        else:
+            print("The menu is closed")
+            # Remove only the menu indicator circle
+            data[40:81, 40:81, :] = 255
 
-    # Remove the compass from the top left
-    data[25:79, 30:79] = [255, 255, 255]
+        # Remove the compass from the top left
+        data[25:79, 30:79] = [255, 255, 255]
 
-    # Remove the close button from the top right
-    data[33:73, 1332:1372] = [255, 255, 255]
+        # Remove the close button from the top right
+        data[33:73, 1332:1372] = [255, 255, 255]
 
-    # Remove page range
-    print("Removing page range")
-    data[1820:1851, 590:806] = [255, 255, 255]
+        # Remove page range
+        print("Removing page range")
+        data[1820:1851, 590:806] = [255, 255, 255]
 
     # Crop to the bounding box
     img = Image.fromarray(data).convert("RGB")
-    img = remove_dotted_background(img)
+    if crop:
+        img = remove_dotted_background(img)
 
     # Set alpha channel
     data = np.array(img.convert("RGBA"))
 
     # Copy inverted red channel to alpha channel, so that the background is transparent
     # (could have also used blue or green here, doesn't matter)
-    # data[..., -1] = 255 - data[..., 0]
+    data[..., -1] = 255 - data[..., 0]
     return Image.fromarray(data)
 
 
 if __name__ == "__main__":
-    if not len(sys.argv) == 2:
-        raise Exception("Image path must be passed!")
-    path = sys.argv[1]
-    img = cleanup_image(path)
-    img.save(path)
+    parser = argparse.ArgumentParser(description="Clean up an image.")
+    parser.add_argument("path", help="Path to the image file.")
+    parser.add_argument("--crop", action="store_true", help="Crop the image.")
+    args = parser.parse_args()
+    print(args)
+
+    img = cleanup_image(args.path, args.crop)
+    img.save(args.path)
