@@ -44,19 +44,6 @@
           devShells.default = pkgs.mkShell {
             packages = with packages; (with pkgs; [
               feh
-              (pkgs.symlinkJoin {
-                name = "obsidian";
-                paths = [pkgs.obsidian reSnap postProcess];
-                buildInputs = [pkgs.makeWrapper];
-                postBuild = ''
-                  wrapProgram $out/bin/obsidian \
-                    --set PATH $PATH:${pkgs.lib.makeBinPath [
-                    reSnap
-                    postProcess
-                    pkgs.openssh
-                  ]}
-                '';
-              })
               (pkgs.python3.withPackages (ps:
                 with ps; [
                   numpy

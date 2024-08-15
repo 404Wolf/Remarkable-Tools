@@ -6,5 +6,5 @@
     ]);
 in
   pkgs.writeShellScriptBin "postProcess" ''
-    ${python}/bin/python3 -O ${./postProcess.py} $@
+    ${python}/bin/python3 -O ${./postProcess.py} "$@"
   ''
