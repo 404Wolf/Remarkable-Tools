@@ -99,7 +99,6 @@ def cleanup_image(path, crop):
         # Rotate the image
         data = np.rot90(data, 3)
         img = Image.fromarray(data).convert("RGB")
-        img.save("transient.png")
     else:
         print(data.shape)
         if np.all(data[1840, 37] == [0, 0, 0]):
@@ -132,7 +131,7 @@ def cleanup_image(path, crop):
 
     # Copy inverted red channel to alpha channel, so that the background is transparent
     # (could have also used blue or green here, doesn't matter)
-    data[..., -1] = 255 - data[..., 0]
+    # data[..., -1] = 255 - data[..., 0]
     return Image.fromarray(data)
 
 
