@@ -42,21 +42,22 @@
             };
           };
           devShells.default = pkgs.mkShell {
-            packages = with packages; (with pkgs; [
-              feh
-              reSnap
-              ffmpeg
-              jq
-              bun
-              typescript
-              reSetup
-              rePostProcess
+            packages = [
+              pkgs.obsidian
+              pkgs.feh
+              pkgs.ffmpeg
+              pkgs.jq
+              pkgs.bun
+              pkgs.typescript
+              packages.reSnap
+              packages.reSetup
+              packages.rePostProcess
               (pkgs.python3.withPackages (ps:
                 with ps; [
                   numpy
                   pillow
                 ]))
-            ]);
+            ];
           };
         }
       )

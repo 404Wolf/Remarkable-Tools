@@ -224,7 +224,7 @@ $decompress |
     -vf "$filters" \
     -frames:v 1 \
     -f image2 \
-    "$output_file"
+    "$output_file" > /dev/null 2>&1
 
 if [ "$construct_sketch" = "true" ]; then
     echo "Constructing sketch"
@@ -246,17 +246,5 @@ if [ "$display_output_file" = "true" ]; then
     feh --fullscreen "$output_file"
 fi
 
-ALL_METADATA=$(ssh_cmd <<EOF
-OUTPUT="$(mktemp)"
-echo '[' > "\$OUTPUT"
-for FILE in /home/root/.local/share/remarkable/xochitl/*.metadata; do
-    if grep -q "lastModified" "\$FILE"; then
-        echo ',' >> "\$OUTPUT"
-        echo {\$FILE: \$(cat "\$FILE")} >> "\$OUTPUT"
-    fi
-done
-echo ']' >> "\$OUTPUT"
-cat "\$OUTPUT"
-EOF
-)
-echo "$ALL_METADATA"  | jq -M 'max_by(.lastModified | tonumber)'
+FILENAME=$(ssh_cmd "basename \$(ls -t /home/root/.local/share/remarkable/xochitl | head -n 1) | cut -d '.' -f 1")
+echo "$FILENAME"
