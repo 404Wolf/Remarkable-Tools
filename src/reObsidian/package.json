@@ -1,0 +1,18 @@
+{
+  "name": "reObsidian",
+  "module": "plugin.ts",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "esbuild": "^0.23.0",
+    "obsidian": "^1.6.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "child_process": false,
+  "scripts": {
+    "dev": "bunx nodemon --ext ts js --exec 'bun run build'",
+    "build": "bun run ./build.ts"
+  },
+  "type": "module"
+}
