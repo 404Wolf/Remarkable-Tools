@@ -21,13 +21,19 @@
           packages = pkgs.callPackage ./src {};
         in {
           packages = {
-            default = packages.reSnap;
             reSnap = packages.reSnap;
             rePostProcess = packages.rePostProcess;
             reSetup = packages.reSetup;
+            obsidian = pkgs.obsidian.overrideAttrs (oldAttrs: {
+              postFixup = ''
+                wrapProgram $out/bin/obsidian --prefix PATH : ${pkgs.lib.makeBinPath (with packages; [
+                  reSnap
+                  rePostProcess
+                ])}/bin
+              '';
+            });
           };
-          apps = rec {
-            default = reSnap;
+          apps = {
             reSnap = flake-utils.lib.mkApp {
               name = "reSnap";
               drv = packages.reSnap;
@@ -42,16 +48,16 @@
             };
           };
           devShells.default = pkgs.mkShell {
-            packages = [
-              pkgs.obsidian
+            packages = with packages; [
               pkgs.feh
               pkgs.ffmpeg
               pkgs.jq
               pkgs.bun
               pkgs.typescript
-              packages.reSnap
-              packages.reSetup
-              packages.rePostProcess
+              pkgs.obsidian
+              reSnap
+              reSetup
+              rePostProcess
               (pkgs.python3.withPackages (ps:
                 with ps; [
                   numpy
