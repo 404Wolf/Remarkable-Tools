@@ -1,5 +1,5 @@
 {pkgs, ...}: {
-  postProcess = pkgs.callPackage ./postProcess {};
+  rePostProcess = pkgs.callPackage ./rePostProcess {};
   reSnap = pkgs.callPackage ./reSnap {};
-  setupRemarkable = pkgs.callPackage ./setupRemarkable {};
+  reSetup = pkgs.callPackage ./reSetup {};
 }

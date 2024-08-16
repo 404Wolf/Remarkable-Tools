@@ -144,7 +144,6 @@ elif [ "$rm_version" = "reMarkable 2.0" ]; then
     height=1404
     # pixel format
     if [ "$byte_correction" = "true" ]; then
-        echo "Byte correction enabled"
         bytes_per_pixel=2
         pixel_format="gray16le"
         filters="$filters,transpose=3" # 90° clockwise and vertical flip
@@ -246,3 +245,18 @@ if [ "$display_output_file" = "true" ]; then
     # show the snapshot
     feh --fullscreen "$output_file"
 fi
+
+ALL_METADATA=$(ssh_cmd <<EOF
+OUTPUT="$(mktemp)"
+echo '[' > "\$OUTPUT"
+for FILE in /home/root/.local/share/remarkable/xochitl/*.metadata; do
+    if grep -q "lastModified" "\$FILE"; then
+        echo ',' >> "\$OUTPUT"
+        echo {\$FILE: \$(cat "\$FILE")} >> "\$OUTPUT"
+    fi
+done
+echo ']' >> "\$OUTPUT"
+cat "\$OUTPUT"
+EOF
+)
+echo "$ALL_METADATA"  | jq -M 'max_by(.lastModified | tonumber)'

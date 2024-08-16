@@ -56,10 +56,22 @@ def remove_dotted_background(img, blur_radius=10, block_size=20, padding=100):
     )
     filtered_image = filtered_image.resize(original_img_size, Image.Resampling.NEAREST)
 
+    colorized_image = filtered_image.convert("L")
+    colorized_image = ImageOps.colorize(
+        colorized_image,
+        (0, 0, 0),
+        (255, 255, 255),
+        blackpoint=50,
+        whitepoint=240,
+    )
+    colorized_image.save("transient.png")
+
+    img = img.convert("RGB")
+
     # Brighten image slightly and reduce contrast
     # Since some pixels might be like, (255, 255, 254)
-    # enhancer = ImageEnhance.Contrast(img)
-    # img = enhancer.enhance(0.9)
+    enhancer = ImageEnhance.Contrast(img)
+    img = enhancer.enhance(0.9)
     enhancer = ImageEnhance.Brightness(filtered_image)
     filtered_image = enhancer.enhance(1.05)
 
@@ -71,7 +83,6 @@ def remove_dotted_background(img, blur_radius=10, block_size=20, padding=100):
 
 
 def is_landscape(data):
-    print(data.shape)
     return np.all(data[1824, 45] == [0, 0, 0])
 
 
@@ -80,12 +91,9 @@ def cleanup_image(path, crop):
     # Load image, discard alpha (if present)
     img = Image.open(path)
     img = apply_curve(img)
-    original_mode = img.mode
-    print(f"Original mode: {original_mode}")
     img_array = np.array(img)
     img_normalized = (img_array / 256).astype("uint8")
     img = Image.fromarray(np.stack((img_normalized,) * 3, axis=-1))
-    img = img.convert("RGB")
 
     # Remove menu and indicators
     data = np.array(img)
@@ -100,14 +108,11 @@ def cleanup_image(path, crop):
         data = np.rot90(data, 3)
         img = Image.fromarray(data).convert("RGB")
     else:
-        print(data.shape)
         if np.all(data[1840, 37] == [0, 0, 0]):
-            print(f"The menu is open")
             # Remove the menu and x
             data[:, :120, :] = 255
             data[40:81, 1324:1364, :] = 255
         else:
-            print("The menu is closed")
             # Remove only the menu indicator circle
             data[40:81, 40:81, :] = 255
 
@@ -118,7 +123,6 @@ def cleanup_image(path, crop):
         data[33:73, 1332:1372] = [255, 255, 255]
 
         # Remove page range
-        print("Removing page range")
         data[1820:1851, 590:806] = [255, 255, 255]
 
     # Crop to the bounding box
@@ -131,7 +135,7 @@ def cleanup_image(path, crop):
 
     # Copy inverted red channel to alpha channel, so that the background is transparent
     # (could have also used blue or green here, doesn't matter)
-    # data[..., -1] = 255 - data[..., 0]
+    data[..., -1] = 255 - data[..., 0]
     return Image.fromarray(data)
 
 
@@ -140,7 +144,6 @@ if __name__ == "__main__":
     parser.add_argument("path", help="Path to the image file.")
     parser.add_argument("--crop", action="store_true", help="Crop the image.")
     args = parser.parse_args()
-    print(args)
 
     img = cleanup_image(args.path, args.crop)
     img.save(args.path)

@@ -23,8 +23,8 @@
           packages = {
             default = packages.reSnap;
             reSnap = packages.reSnap;
-            postProcess = packages.postProcess;
-            setupRemarkable = packages.setupRemarkable;
+            rePostProcess = packages.rePostProcess;
+            reSetup = packages.reSetup;
           };
           apps = rec {
             default = reSnap;
@@ -32,29 +32,31 @@
               name = "reSnap";
               drv = packages.reSnap;
             };
-            postProcess = flake-utils.lib.mkApp {
-              name = "postProcess";
-              drv = packages.postProcess;
+            rePostProcess = flake-utils.lib.mkApp {
+              name = "rePostProcess";
+              drv = packages.rePostProcess;
             };
-            setupRemarkable = flake-utils.lib.mkApp {
-              name = "setupRemarkable";
-              drv = packages.setupRemarkable;
+            reSetup = flake-utils.lib.mkApp {
+              name = "reSetup";
+              drv = packages.reSetup;
             };
           };
           devShells.default = pkgs.mkShell {
             packages = with packages; (with pkgs; [
               feh
+              reSnap
+              ffmpeg
+              jq
+              bun
+              typescript
+              reSetup
+              rePostProcess
               (pkgs.python3.withPackages (ps:
                 with ps; [
                   numpy
                   pillow
                 ]))
             ]);
-            inputsFrom = with packages; [
-              reSnap
-              postProcess
-              setupRemarkable
-            ];
           };
         }
       )

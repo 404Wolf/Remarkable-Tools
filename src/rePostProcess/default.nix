@@ -5,6 +5,6 @@
       pillow
     ]);
 in
-  pkgs.writeShellScriptBin "postProcess" ''
-    ${python}/bin/python3 -O ${./postProcess.py} "$@"
+  pkgs.writeShellScriptBin "rePostProcess" ''
+    ${python}/bin/python3 -O ${./rePostProcess.py} "$@"
   ''

@@ -1,6 +1,6 @@
 {pkgs, ...}:
 pkgs.writeShellApplication {
-  name = "setup-remarkable";
+  name = "reSetup";
   runtimeInputs = with pkgs; [sshpass];
   checkPhase = "";
   text = ''
@@ -10,6 +10,6 @@ pkgs.writeShellApplication {
     KEY_TYPE="ed25519"
     KEY_PATH="$HOME/.ssh/remarkable"
     KEY_COMMENT="remarkable_auto_generated_key"
-    ${builtins.readFile ./setupRemarkable.sh}
+    ${builtins.readFile ./reSetup.sh}
   '';
 }

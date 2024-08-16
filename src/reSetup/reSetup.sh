@@ -4,7 +4,7 @@ if [ -z "$REMARKABLE_PASSWORD" ]; then
     exit 1
 fi
 if [ ! -e "$KEY_PATH" ]; then
-    ssh-keygen -t $KEY_TYPE -f "$KEY_PATH" -N "" -C "$KEY_COMMENT"
+    ssh-keygen -t "$KEY_TYPE" -f "$KEY_PATH" -N "" -C "$KEY_COMMENT"
 
     if [ $? -eq 0 ]; then
         echo "SSH key pair successfully generated"
