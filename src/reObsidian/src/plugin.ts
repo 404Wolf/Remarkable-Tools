@@ -84,7 +84,7 @@ export default class MyPlugin extends Plugin {
       // Create the markdown for the image
       let imageMarkdown =
         `![[${fileName}]]\n` +
-        `\`Page ${noteMetadata.lastOpenedPage} @ "${notePath}"\``;
+        `\`Page ${noteMetadata.lastOpenedPage + 1} @ "${notePath}"\``;
       if (this.settings.imageTag != "")
         imageMarkdown += ` #${this.settings.imageTag}`;
 

@@ -24,14 +24,6 @@
             reSnap = packages.reSnap;
             rePostProcess = packages.rePostProcess;
             reSetup = packages.reSetup;
-            obsidian = pkgs.obsidian.overrideAttrs (oldAttrs: {
-              postFixup = ''
-                wrapProgram $out/bin/obsidian --prefix PATH : ${pkgs.lib.makeBinPath (with packages; [
-                  reSnap
-                  rePostProcess
-                ])}/bin
-              '';
-            });
           };
           apps = {
             reSnap = flake-utils.lib.mkApp {
@@ -46,24 +38,39 @@
               name = "reSetup";
               drv = packages.reSetup;
             };
+            wrappedObsidian = flake-utils.lib.mkApp {
+              name = "obsidian";
+              drv = pkgs.obsidian.overrideAttrs (oldAttrs: {
+                postFixup = ''
+                  wrapProgram $out/bin/obsidian --prefix PATH : ${pkgs.lib.makeBinPath (with packages; [
+                    reSnap
+                    rePostProcess
+                  ])}/bin
+                '';
+              });
+            };
           };
           devShells.default = pkgs.mkShell {
-            packages = with packages; [
-              pkgs.feh
-              pkgs.ffmpeg
-              pkgs.jq
-              pkgs.bun
-              pkgs.typescript
-              pkgs.obsidian
-              reSnap
-              reSetup
-              rePostProcess
-              (pkgs.python3.withPackages (ps:
-                with ps; [
-                  numpy
-                  pillow
-                ]))
-            ];
+            packages = with packages;
+              [
+                reSnap
+                reSetup
+                rePostProcess
+                (pkgs.python3.withPackages (ps:
+                  with ps; [
+                    numpy
+                    pillow
+                  ]))
+              ]
+              ++ (with pkgs; [
+                feh
+                ffmpeg
+                jq
+                bun
+                typescript
+                obsidian
+                sqlite
+              ]);
           };
         }
       )
