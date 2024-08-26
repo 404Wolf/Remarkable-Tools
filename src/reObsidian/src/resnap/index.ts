@@ -26,7 +26,8 @@ const execFile = promisify(execFileCallback);
 
 async function getNoteFileMetadataJson(
   noteFileMetadataPath: string,
-  { rmAddress, reSnapSshkey }: CallResnapArgs,
+  rmAddress: string,
+  reSnapSshkey: string,
 ) {
   return JSON.parse(
     (
@@ -42,11 +43,13 @@ async function getNoteFileMetadataJson(
 
 export async function getCurrentNotePath(
   reSnapOutput: string,
-  args: CallResnapArgs,
+  rmAddress: string,
+  reSnapSshkey: string,
 ): Promise<string> {
   const noteFileMetadataJson = await getNoteFileMetadataJson(
     reSnapOutput,
-    args,
+    rmAddress,
+    reSnapSshkey,
   );
 
   const getNoteFilePath = async (
@@ -55,7 +58,11 @@ export async function getCurrentNotePath(
   ) => {
     if (noteFileMetadataJson.parent !== "")
       return getNoteFilePath(
-        await getNoteFileMetadataJson(noteFileMetadataJson.parent, args),
+        await getNoteFileMetadataJson(
+          noteFileMetadataJson.parent,
+          rmAddress,
+          reSnapSshkey,
+        ),
         `${noteFileMetadataJson.visibleName}/${noteFilePath}`,
       );
     else return noteFilePath;
@@ -101,8 +108,15 @@ export default async function callReSnap(args: {
   }
 
   return {
-    notePath: await getCurrentNotePath(reSnapOutput, args),
-    noteMetadata: await getNoteFileMetadataJson(reSnapOutput, args),
+    notePath: await getCurrentNotePath(
+      reSnapOutput,
+      args.rmAddress,
+      args.reSnapSshkey,
+    ),
+    noteMetadata: await getNoteFileMetadataJson(
+      reSnapOutput,
+      args.rmAddress,
+      args.reSnapSshkey,
+    ),
   };
 }
-

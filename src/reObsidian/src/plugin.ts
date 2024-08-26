@@ -89,13 +89,11 @@ export default class MyPlugin extends Plugin {
           await this.getResourceRoot(),
           `${uuid}.pdf`,
         );
-        const notePath = await getCurrentNotePath(uuid, {
-          rmAddress: this.settings.rmAddress,
-          reSnapSshkey: this.settings.rmSshKeyAddress,
-          reSnapPath: "",
-          outputPath: "",
-          postProcess: "",
-        });
+        const notePath = await getCurrentNotePath(
+          uuid,
+          this.settings.rmAddress,
+          this.settings.rmSshKeyAddress,
+        );
         console.log("Output path: ", outputPath);
         exec(
           `curl -o "${outputPath}" "${pdfDownloadUrl}"`,

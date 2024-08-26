@@ -127,7 +127,7 @@ fi
 
 rm_version="$(ssh_cmd cat /sys/devices/soc0/machine)"
 
-if [ ! "$dry_run" ]; then
+if [ "$dry_run" = "false" ]; then
     # technical parameters
     if [ "$rm_version" = "reMarkable 1.0" ]; then
 
