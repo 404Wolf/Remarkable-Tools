@@ -60,6 +60,8 @@
                   with ps; [
                     numpy
                     pillow
+                    paramiko
+                    requests
                   ]))
               ]
               ++ (with pkgs; [
