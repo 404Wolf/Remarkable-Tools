@@ -7,7 +7,7 @@ import SettingsTab, {
   DEFAULT_SETTINGS,
   type MyPluginSettings,
 } from "./settings";
-import callReSnap from "./resnap/index.ts";
+import callReSnap, { getCurrentNotePath } from "./resnap/index.ts";
 
 export default class MyPlugin extends Plugin {
   settings: MyPluginSettings = DEFAULT_SETTINGS;
@@ -89,6 +89,13 @@ export default class MyPlugin extends Plugin {
           await this.getResourceRoot(),
           `${uuid}.pdf`,
         );
+        const notePath = await getCurrentNotePath(uuid, {
+          rmAddress: this.settings.rmAddress,
+          reSnapSshkey: this.settings.rmSshKeyAddress,
+          reSnapPath: "",
+          outputPath: "",
+          postProcess: "",
+        });
         console.log("Output path: ", outputPath);
         exec(
           `curl -o "${outputPath}" "${pdfDownloadUrl}"`,
@@ -99,7 +106,7 @@ export default class MyPlugin extends Plugin {
             }
             console.log(`stdout: ${stdout}`);
             console.error(`stderr: ${stderr}`);
-            this.insertTextAtCursor(`![[${uuid}.pdf]]`);
+            this.insertTextAtCursor(`![[${uuid}.pdf]]\n\`@${notePath}\``);
           },
         );
       },

@@ -40,7 +40,7 @@ async function getNoteFileMetadataJson(
   ) as DocumentMetadata;
 }
 
-async function getCurrentNotePath(
+export async function getCurrentNotePath(
   reSnapOutput: string,
   args: CallResnapArgs,
 ): Promise<string> {
