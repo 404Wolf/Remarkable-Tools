@@ -20,6 +20,7 @@ invert_colors="${REMARKABLE_INVERT_COLORS:-false}"
 filters="null"
 copy_to_clipboard="false"
 construct_sketch="false"
+dry_run="false"
 
 # parsing arguments
 while [ $# -gt 0 ]; do
