@@ -64,7 +64,6 @@ def remove_dotted_background(img, blur_radius=10, block_size=20, padding=100):
         blackpoint=50,
         whitepoint=240,
     )
-    colorized_image.save("transient.png")
 
     img = img.convert("RGB")
 
@@ -83,7 +82,7 @@ def remove_dotted_background(img, blur_radius=10, block_size=20, padding=100):
 
 
 def is_landscape(data):
-    return np.all(data[1824, 45] == [0, 0, 0])
+    return np.all(data[1820, 34] == [0, 0, 0])
 
 
 def cleanup_image(path, crop):

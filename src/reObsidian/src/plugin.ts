@@ -104,7 +104,10 @@ export default class MyPlugin extends Plugin {
             }
             console.log(`stdout: ${stdout}`);
             console.error(`stderr: ${stderr}`);
-            this.insertTextAtCursor(`![[${uuid}.pdf]]\n\`@${notePath}\``);
+            let pdfMarkdown = `![[${uuid}.pdf]]\n\`@${notePath}\``;
+            if (this.settings.imageTag != "")
+              pdfMarkdown += ` #${this.settings.imageTag}`;
+            this.insertTextAtCursor(pdfMarkdown);
           },
         );
       },
