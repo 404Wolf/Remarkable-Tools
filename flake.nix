@@ -24,6 +24,19 @@
             reSnap = packages.reSnap;
             rePostProcess = packages.rePostProcess;
             reSetup = packages.reSetup;
+            obsidian = pkgs.obsidian.overrideAttrs (oldAttrs: {
+              postFixup = ''
+                wrapProgram $out/bin/obsidian -- prefix PATH : ${pkgs.lib.makeBinPath ((with pkgs; [
+                    pandoc
+                    texliveTeTeX
+                    typst
+                  ])
+                  ++ [
+                    pkgs.remarkable-obsidian.packages.${system}.reSnap
+                    pkgs.remarkable-obsidian.packages.${system}.rePostProcess
+                  ])}
+              '';
+            });
           };
           apps = {
             reSnap = flake-utils.lib.mkApp {
