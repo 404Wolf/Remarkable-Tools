@@ -20,7 +20,7 @@
           };
           packages = pkgs.callPackage ./src {};
         in {
-          packages = {
+          packages = rec {
             reSnap = packages.reSnap;
             rePostProcess = packages.rePostProcess;
             reSetup = packages.reSetup;
@@ -31,10 +31,7 @@
                     texliveTeTeX
                     typst
                   ])
-                  ++ [
-                    pkgs.remarkable-obsidian.packages.${system}.reSnap
-                    pkgs.remarkable-obsidian.packages.${system}.rePostProcess
-                  ])}
+                  ++ [reSnap rePostProcess])}
               '';
             });
           };
