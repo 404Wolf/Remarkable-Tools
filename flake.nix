@@ -25,13 +25,11 @@
             rePostProcess = packages.rePostProcess;
             reSetup = packages.reSetup;
             obsidian = pkgs.obsidian.overrideAttrs (oldAttrs: {
-              postFixup = ''
-                wrapProgram $out/bin/obsidian -- prefix PATH : ${pkgs.lib.makeBinPath ((with pkgs; [
-                    pandoc
-                    texliveTeTeX
-                    typst
-                  ])
-                  ++ [reSnap rePostProcess])}
+              postInstall = ''
+                wrapProgram $out/bin/obsidian --prefix PATH : "${pkgs.lib.makeBinPath ((with pkgs;
+                  [pandoc texliveTeTeX typst]
+                  ++ [reSnap rePostProcess])
+                ++ [reSnap rePostProcess])}"
               '';
             });
           };
@@ -47,17 +45,6 @@
             reSetup = flake-utils.lib.mkApp {
               name = "reSetup";
               drv = packages.reSetup;
-            };
-            wrappedObsidian = flake-utils.lib.mkApp {
-              name = "obsidian";
-              drv = pkgs.obsidian.overrideAttrs (oldAttrs: {
-                postFixup = ''
-                  wrapProgram $out/bin/obsidian --prefix PATH : ${pkgs.lib.makeBinPath (with packages; [
-                    reSnap
-                    rePostProcess
-                  ])}/bin
-                '';
-              });
             };
           };
           devShells.default = pkgs.mkShell {
